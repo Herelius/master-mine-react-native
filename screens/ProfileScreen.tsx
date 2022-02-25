@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const ProjectPage = (): JSX.Element => {
+const ProfileScreen = (): JSX.Element => {
   return (
     <>
       <View style={styles.container}>
-        <Text>Project</Text>
+        <Text>Profile</Text>
       </View>
     </>
   );
@@ -17,4 +17,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProjectPage;
+export default ProfileScreen;

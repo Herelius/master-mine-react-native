@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,52 +7,37 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
-import { request, gql } from "graphql-request";
+import { gql, request } from "graphql-request";
 
-const LoginScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation }) => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [data, setData] = useState([]);
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const query = gql`
-    query Query {
-      getUser {
+  const newUser = gql`
+    mutation SignUp($data: SignUpInput!) {
+      signUp(data: $data) {
         username
         email
+        password
       }
     }
   `;
 
-  const signInQuery = gql`
-    mutation Mutation($password: String!, $email: String!) {
-      signIn(password: $password, email: $email) {
-        accessToken
-      }
-    }
-  `;
-
-  useEffect(() => {
+  const registerNewUser = () => {
     request({
       url: "http://192.168.1.61:4000/graphql",
-      document: query,
-    })
-      .then((result) => {
-        setData(result["getUser"]);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  const signIn = () => {
-    request({
-      url: "http://192.168.1.61:4000/graphql",
-      document: signInQuery,
+      document: newUser,
       variables: {
-        email,
-        password,
+        data: { username, email, password },
       },
     })
-      .then((result) => console.log(result))
+      .then(() => {
+        Alert.alert("Congratulations", "User created");
+      })
       .catch((err) => console.log(err));
   };
 
@@ -62,6 +47,13 @@ const LoginScreen = ({ navigation }) => {
         <Image source={require("../assets/logo.png")} />
       </View>
       <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Username"
+          value={username}
+          onChangeText={(text) => setUsername(text)}
+          style={styles.input}
+          autoCompleteType="username"
+        />
         <TextInput
           placeholder="Email"
           value={email}
@@ -79,21 +71,19 @@ const LoginScreen = ({ navigation }) => {
           autoCompleteType="password"
           secureTextEntry
         />
+        <TextInput
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChangeText={(text) => setConfirmPassword(text)}
+          style={styles.input}
+          autoCompleteType="password"
+          secureTextEntry
+        />
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            console.log(data);
-            signIn();
-            navigation.navigate("Routes");
-          }}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
           style={[styles.button, styles.buttonOutline]}
-          onPress={() => navigation.navigate("Register")}
+          onPress={() => registerNewUser()}
         >
           <Text style={styles.buttonOutlineText}>Register</Text>
         </TouchableOpacity>
@@ -155,4 +145,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default RegisterScreen;
