@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import { request, gql } from "graphql-request";
 
@@ -14,6 +15,7 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [data, setData] = useState([]);
+  const [token, setToken] = useState([]);
 
   const query = gql`
     query Query {
@@ -25,8 +27,8 @@ const LoginScreen = ({ navigation }) => {
   `;
 
   const signInQuery = gql`
-    mutation Mutation($password: String!, $email: String!) {
-      signIn(password: $password, email: $email) {
+    mutation Mutation($email: String!, $password: String!) {
+      signIn(email: $email, password: $password) {
         accessToken
       }
     }
@@ -52,8 +54,15 @@ const LoginScreen = ({ navigation }) => {
         password,
       },
     })
-      .then((result) => console.log(result))
-      .catch((err) => console.log(err));
+      .then((result) => setToken(result["signIn"]["accessToken"]))
+      .then(() => navigation.navigate("Routes"))
+      .catch((err) => {
+        Alert.alert("Error", "Wrong credentials", [
+          {
+            text: "Ok",
+          },
+        ]);
+      });
   };
 
   return (
@@ -84,9 +93,8 @@ const LoginScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            console.log(data);
             signIn();
-            navigation.navigate("Routes");
+            console.log("token", token);
           }}
         >
           <Text style={styles.buttonText}>Login</Text>
