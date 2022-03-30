@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -33,17 +33,6 @@ const LoginScreen = ({ navigation }) => {
       }
     }
   `;
-
-  useEffect(() => {
-    request({
-      url: "http://192.168.1.61:4000/graphql",
-      document: query,
-    })
-      .then((result) => {
-        setData(result["getUser"]);
-      })
-      .catch((err) => console.log(err));
-  }, []);
 
   const signIn = () => {
     request({

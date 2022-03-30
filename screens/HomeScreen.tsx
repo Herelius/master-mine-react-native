@@ -3,14 +3,19 @@ import React from "react";
 
 const HomeScreen = ({ navigation }) => {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("Login")}
-      >
-        <Text style={styles.buttonText}>Log out</Text>
-      </TouchableOpacity>
-    </View>
+    <>
+      <View style={styles.container}>
+        <Text>News</Text>
+      </View>
+      <View style={styles.btnContainer}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Login")}
+        >
+          <Text style={styles.buttonText}>Log out</Text>
+        </TouchableOpacity>
+      </View>
+    </>
   );
 };
 
@@ -18,7 +23,10 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 0.8,
+  },
+  btnContainer: {
+    flex: 0.2,
     justifyContent: "center",
     alignItems: "center",
   },

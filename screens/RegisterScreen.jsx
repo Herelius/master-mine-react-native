@@ -27,18 +27,45 @@ const RegisterScreen = ({ navigation }) => {
     }
   `;
 
-  const registerNewUser = () => {
-    request({
-      url: "http://192.168.1.61:4000/graphql",
-      document: newUser,
-      variables: {
-        data: { username, email, password },
-      },
-    })
-      .then(() => {
+  // const registerNewUser = () => {
+  //   if (confirmPassword.length && confirmPassword === password) {
+  //     request({
+  //       url: "http://192.168.1.61:4000/graphql",
+  //       document: newUser,
+  //       variables: {
+  //         data: { username, email, password },
+  //       },
+  //     })
+  //       .then((result) => {
+  //         console.log(result);
+  //         Alert.alert("Congratulations", "User created");
+  //       })
+  //       .catch((err) => {
+  //         console.log("Shit");
+  //         Alert.alert("Error", "User already exist");
+  //       });
+  //   } else {
+  //     Alert.alert("Error", "The passwords do not match");
+  //   }
+  // };
+
+  const registerNewUser = async () => {
+    if (confirmPassword.length && confirmPassword === password) {
+      try {
+        const req = await request({
+          url: "http://192.168.1.61:4000/graphql",
+          document: newUser,
+          variables: {
+            data: { username, email, password },
+          },
+        });
         Alert.alert("Congratulations", "User created");
-      })
-      .catch((err) => console.log(err));
+      } catch (err) {
+        Alert.alert("Error", "User already exist");
+      }
+    } else {
+      Alert.alert("Error", "The passwords do not match");
+    }
   };
 
   return (
