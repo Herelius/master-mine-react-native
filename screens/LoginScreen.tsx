@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import * as SecureStore from "expo-secure-store";
 import {
   StyleSheet,
   Text,
@@ -11,11 +12,28 @@ import {
 } from "react-native";
 import { request, gql } from "graphql-request";
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [data, setData] = useState([]);
-  const [token, setToken] = useState([]);
+  const [token, setToken] = useState("");
+
+  const saveSession = async (key: string, value: string) => {
+    await SecureStore.setItemAsync(key, value);
+  };
+
+  const getToken = async (key: string) => {
+    let result = await SecureStore.getItemAsync(key);
+    if (result) setToken(result);
+    else setToken("null");
+  };
+
+  useEffect(() => {
+    try {
+      getToken("secure_token");
+    } catch (err) {
+      console.log("No Token");
+    }
+  }, []);
 
   const query = gql`
     query Query {
@@ -27,34 +45,52 @@ const LoginScreen = ({ navigation }) => {
   `;
 
   const signInQuery = gql`
-    mutation Mutation($email: String!, $password: String!) {
-      signIn(email: $email, password: $password) {
-        accessToken
-      }
+    mutation SignIn($password: String!, $email: String!) {
+      signIn(password: $password, email: $email)
     }
   `;
 
-  const signIn = () => {
-    request({
-      url: "http://192.168.1.61:4000/graphql",
-      document: signInQuery,
-      variables: {
-        email,
-        password,
-      },
-    })
-      .then((result) => setToken(result["signIn"]["accessToken"]))
-      .then(() => navigation.navigate("Routes"))
-      .catch((err) => {
-        Alert.alert("Error", "Wrong credentials", [
-          {
-            text: "Ok",
-          },
-        ]);
+  const signIn = async () => {
+    try {
+      const req = await request({
+        url: "http://192.168.1.60:4000/graphql",
+        document: signInQuery,
+        variables: {
+          email,
+          password,
+        },
       });
+      console.log(req.signIn);
+      saveSession("secure_token", req.signIn);
+      navigation.navigate("Routes");
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Error", "Wrong credentials", [
+        {
+          text: "Ok",
+        },
+      ]);
+    }
   };
 
-  return (
+  return token !== "null" ? (
+    <>
+      <View style={styles.homeContainer}>
+        <Text>News</Text>
+      </View>
+      <View style={styles.homeBtnContainer}>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={async () => {
+            await SecureStore.deleteItemAsync("secure_token");
+            navigation.navigate("Login");
+          }}
+        >
+          <Text style={styles.homeButtonText}>Log out</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  ) : (
     <KeyboardAvoidingView style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={require("../assets/logo.png")} />
@@ -81,9 +117,8 @@ const LoginScreen = ({ navigation }) => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
-            signIn();
-            console.log("token", token);
+          onPress={async () => {
+            await signIn();
           }}
         >
           <Text style={styles.buttonText}>Login</Text>
@@ -147,6 +182,26 @@ const styles = StyleSheet.create({
   },
   buttonOutlineText: {
     color: "#0782F9",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  homeContainer: {
+    flex: 0.8,
+  },
+  homeBtnContainer: {
+    flex: 0.2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  homeButton: {
+    backgroundColor: "#E41919",
+    width: "80%",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  homeButtonText: {
+    color: "white",
     fontWeight: "700",
     fontSize: 16,
   },

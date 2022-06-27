@@ -53,7 +53,7 @@ const RegisterScreen = ({ navigation }) => {
     if (confirmPassword.length && confirmPassword === password) {
       try {
         const req = await request({
-          url: "http://192.168.1.61:4000/graphql",
+          url: "http://192.168.1.60:4000/graphql",
           document: newUser,
           variables: {
             data: { username, email, password },

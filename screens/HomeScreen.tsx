@@ -1,18 +1,22 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
+import * as SecureStore from "expo-secure-store";
 
 const HomeScreen = ({ navigation }) => {
   return (
     <>
-      <View style={styles.container}>
+      <View style={styles.homeContainer}>
         <Text>News</Text>
       </View>
-      <View style={styles.btnContainer}>
+      <View style={styles.homeBtnContainer}>
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Login")}
+          style={styles.homeButton}
+          onPress={async () => {
+            await SecureStore.deleteItemAsync("secure_token");
+            navigation.navigate("Login");
+          }}
         >
-          <Text style={styles.buttonText}>Log out</Text>
+          <Text style={styles.homeButtonText}>Log out</Text>
         </TouchableOpacity>
       </View>
     </>
@@ -22,22 +26,22 @@ const HomeScreen = ({ navigation }) => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  homeContainer: {
     flex: 0.8,
   },
-  btnContainer: {
+  homeBtnContainer: {
     flex: 0.2,
     justifyContent: "center",
     alignItems: "center",
   },
-  button: {
+  homeButton: {
     backgroundColor: "#E41919",
     width: "80%",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
   },
-  buttonText: {
+  homeButtonText: {
     color: "white",
     fontWeight: "700",
     fontSize: 16,
