@@ -10,13 +10,23 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { request, gql } from "graphql-request";
-import { API_URL } from "@env";
+
+import { gql, useMutation } from "@apollo/client";
+
+const SIGN_IN = gql`
+  mutation SignIn($password: String!, $email: String!) {
+    signIn(password: $password, email: $email) {
+      accessToken
+    }
+  }
+`;
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
+
+  const [SignIn, { data, loading, error }] = useMutation(SIGN_IN);
 
   const saveSession = async (key: string, value: string) => {
     await SecureStore.setItemAsync(key, value);
@@ -39,29 +49,16 @@ const LoginScreen = ({ navigation }: any) => {
     }
   }, []);
 
-  const signInQuery = gql`
-    mutation SignIn($password: String!, $email: String!) {
-      signIn(password: $password, email: $email) {
-        accessToken
-      }
-    }
-  `;
-
   const signIn = async () => {
     try {
-      const req = await request({
-        url: API_URL as string,
-        document: signInQuery,
-        variables: {
-          email,
-          password,
+      await SignIn({
+        variables: { email, password },
+        onCompleted(data) {
+          saveSession("secure_token", data.signIn.accessToken);
+          navigation.navigate("Routes");
         },
       });
-      console.log(req.signIn);
-      saveSession("secure_token", req.signIn.accessToken);
-      navigation.navigate("Routes");
     } catch (err) {
-      console.log(err);
       Alert.alert("Error", "Wrong credentials", [
         {
           text: "Ok",

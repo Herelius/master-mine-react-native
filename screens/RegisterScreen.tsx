@@ -1,3 +1,4 @@
+import { gql, useMutation } from "@apollo/client";
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -9,8 +10,16 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { gql, request } from "graphql-request";
-import { API_URL } from "@env";
+
+const SIGN_UP = gql`
+  mutation SignUp($data: SignUpInput!) {
+    signUp(data: $data) {
+      username
+      email
+      password
+    }
+  }
+`;
 
 const RegisterScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState("");
@@ -18,30 +27,20 @@ const RegisterScreen = ({ navigation }: any) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const newUser = gql`
-    mutation SignUp($data: SignUpInput!) {
-      signUp(data: $data) {
-        username
-        email
-        password
-      }
-    }
-  `;
+  const [SignUp, { data, loading, error }] = useMutation(SIGN_UP);
 
   const registerNewUser = async () => {
     if (confirmPassword.length && confirmPassword === password) {
       try {
-        const req = await request({
-          url: API_URL as string,
-          document: newUser,
-          variables: {
-            data: { username, email, password },
-          },
-        });
-        console.log(req);
-        Alert.alert("Congratulations", "User created");
+        await SignUp({ variables: { data: { username, email, password } } });
+        if (!loading) {
+          Alert.alert(
+            "Congratulations",
+            "An e-mail has been sent to activate your account"
+          );
+        }
       } catch (err) {
-        Alert.alert("Error", "User already exist");
+        Alert.alert("Error", "Error detected");
       }
     } else {
       Alert.alert("Error", "The passwords do not match");
