@@ -49,7 +49,7 @@ const LoginScreen = ({ navigation }: any) => {
   const signIn = async () => {
     try {
       const req = await request({
-        url: "http://192.168.0.169:4000/graphql",
+        url: process.env.API_URL as string,
         document: signInQuery,
         variables: {
           email,
