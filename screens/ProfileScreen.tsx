@@ -1,49 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { request, gql, GraphQLClient } from "graphql-request";
-import * as SecureStore from "expo-secure-store";
+import { gql } from "graphql-request";
 
 const ProfileScreen = (): JSX.Element => {
-  const [id, setId] = useState();
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [projects, setProjects] = useState([]);
-
   const profileDataQuery = gql`
-    query Query {
+    query GetProfile {
       getProfile {
+        id
         username
         email
-        projects {
-          title
-          tasks {
-            title
-          }
-          users {
-            username
-          }
-          dev {
-            username
-          }
-          managers {
-            username
-          }
-        }
       }
     }
   `;
-
-  const placeholderData = [
-    {
-      username: "test",
-      email: "test@test.fr",
-      projects: [
-        {
-          title: "Discuss",
-        },
-      ],
-    },
-  ];
 
   return (
     <>
