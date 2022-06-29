@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import {
   StyleSheet,
@@ -11,15 +11,13 @@ import {
   Alert,
 } from "react-native";
 import { request, gql } from "graphql-request";
+import { AppContext } from "../contexts/AppContext";
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
-
-  const saveSession = async (key: string, value: string) => {
-    await SecureStore.setItemAsync(key, value);
-  };
+  const { getUserProfile }: any = useContext(AppContext);
 
   const getToken = async (key: string) => {
     let result = await SecureStore.getItemAsync(key);
@@ -46,23 +44,28 @@ const LoginScreen = ({ navigation }: any) => {
 
   const signInQuery = gql`
     mutation SignIn($password: String!, $email: String!) {
-      signIn(password: $password, email: $email)
+      signIn(password: $password, email: $email) {
+        accessToken
+      }
     }
   `;
 
   const signIn = async () => {
     try {
       const req = await request({
-        url: "http://192.168.1.60:4000/graphql",
+        url: "http://192.168.0.244:4000/graphql",
         document: signInQuery,
         variables: {
           email,
           password,
         },
       });
-      console.log(req.signIn);
-      saveSession("secure_token", req.signIn);
-      navigation.navigate("Routes");
+
+      if (req.signIn.accessToken) {
+        await SecureStore.setItemAsync("secure_token", req.signIn.accessToken);
+        getUserProfile();
+        navigation.navigate("Routes");
+      }
     } catch (err) {
       console.log(err);
       Alert.alert("Error", "Wrong credentials", [

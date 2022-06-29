@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const ProfileScreen = (props): JSX.Element => {
+const ProfileScreen = (props: any): JSX.Element => {
   return (
     <>
       <TouchableOpacity
@@ -21,10 +21,10 @@ const ProfileScreen = (props): JSX.Element => {
           <Text>Progress</Text>
           <View style={styles.progressBar}>
             <Animated.View
-              style={
-                ([StyleSheet.absoluteFill],
-                { backgroundColor: "#8BED4F", width: `${props.progress}%` })
-              }
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: "#8BED4F", width: `${props.progress}%` },
+              ]}
             />
           </View>
           <Text style={styles.progressValue}>{props.progress}%</Text>
@@ -33,7 +33,6 @@ const ProfileScreen = (props): JSX.Element => {
     </>
   );
 };
-
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "white",
@@ -72,5 +71,4 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
 export default ProfileScreen;
