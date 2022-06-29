@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { gql, request } from "graphql-request";
+import { API_URL } from "@env";
 
 const RegisterScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState("");
@@ -31,12 +32,13 @@ const RegisterScreen = ({ navigation }: any) => {
     if (confirmPassword.length && confirmPassword === password) {
       try {
         const req = await request({
-          url: process.env.API_URL as string,
+          url: API_URL as string,
           document: newUser,
           variables: {
             data: { username, email, password },
           },
         });
+        console.log(req);
         Alert.alert("Congratulations", "User created");
       } catch (err) {
         Alert.alert("Error", "User already exist");

@@ -11,6 +11,7 @@ import {
   Alert,
 } from "react-native";
 import { request, gql } from "graphql-request";
+import { API_URL } from "@env";
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState("");
@@ -49,7 +50,7 @@ const LoginScreen = ({ navigation }: any) => {
   const signIn = async () => {
     try {
       const req = await request({
-        url: process.env.API_URL as string,
+        url: API_URL as string,
         document: signInQuery,
         variables: {
           email,
