@@ -16,7 +16,7 @@ const HomeScreen = ({ navigation }) => {
           style={styles.homeButton}
           onPress={async () => {
             await SecureStore.deleteItemAsync("secure_token");
-            setToken(null);
+            await setToken(null);
             navigation.navigate("Login");
           }}
         >
