@@ -1,3 +1,4 @@
+import { gql, useMutation } from "@apollo/client";
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -9,59 +10,37 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { gql, request } from "graphql-request";
 
-const RegisterScreen = ({ navigation }) => {
+const SIGN_UP = gql`
+  mutation SignUp($data: SignUpInput!) {
+    signUp(data: $data) {
+      username
+      email
+      password
+    }
+  }
+`;
+
+const RegisterScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const newUser = gql`
-    mutation SignUp($data: SignUpInput!) {
-      signUp(data: $data) {
-        username
-        email
-        password
-      }
-    }
-  `;
-
-  // const registerNewUser = () => {
-  //   if (confirmPassword.length && confirmPassword === password) {
-  //     request({
-  //       url: "http://192.168.1.61:4000/graphql",
-  //       document: newUser,
-  //       variables: {
-  //         data: { username, email, password },
-  //       },
-  //     })
-  //       .then((result) => {
-  //         console.log(result);
-  //         Alert.alert("Congratulations", "User created");
-  //       })
-  //       .catch((err) => {
-  //         console.log("Shit");
-  //         Alert.alert("Error", "User already exist");
-  //       });
-  //   } else {
-  //     Alert.alert("Error", "The passwords do not match");
-  //   }
-  // };
+  const [SignUp, { data, loading, error }] = useMutation(SIGN_UP);
 
   const registerNewUser = async () => {
     if (confirmPassword.length && confirmPassword === password) {
       try {
-        const req = await request({
-          url: "http://192.168.0.244:4000/graphql",
-          document: newUser,
-          variables: {
-            data: { username, email, password },
-          },
-        });
-        Alert.alert("Congratulations", "User created");
+        await SignUp({ variables: { data: { username, email, password } } });
+        if (!loading) {
+          Alert.alert(
+            "Congratulations",
+            "An e-mail has been sent to activate your account"
+          );
+        }
       } catch (err) {
-        Alert.alert("Error", "User already exist");
+        Alert.alert("Error", "Error detected");
       }
     } else {
       Alert.alert("Error", "The passwords do not match");

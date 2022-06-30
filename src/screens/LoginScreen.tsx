@@ -10,64 +10,57 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { request, gql } from "graphql-request";
+
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { AppContext } from "../contexts/AppContext";
 
+const SIGN_IN = gql`
+  mutation SignIn($password: String!, $email: String!) {
+    signIn(password: $password, email: $email) {
+      accessToken
+    }
+  }
+`;
+
 const LoginScreen = ({ navigation }: any) => {
+  const { token, setToken } = useContext<any>(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
-  const { getUserProfile }: any = useContext(AppContext);
+
+  const [SignIn, { data, loading, error }] = useMutation(SIGN_IN);
+
+  const saveSession = async (key: string, value: string) => {
+    await SecureStore.setItemAsync(key, value);
+  };
 
   const getToken = async (key: string) => {
     let result = await SecureStore.getItemAsync(key);
-    if (result) setToken(result);
-    else setToken("null");
+    if (result) {
+      setToken(result);
+    } else setToken(null);
   };
 
   useEffect(() => {
     try {
       getToken("secure_token");
+      if (!token) {
+        navigation.navigate("Routes");
+      }
     } catch (err) {
       console.log("No Token");
     }
   }, []);
 
-  const query = gql`
-    query Query {
-      getUser {
-        username
-        email
-      }
-    }
-  `;
-
-  const signInQuery = gql`
-    mutation SignIn($password: String!, $email: String!) {
-      signIn(password: $password, email: $email) {
-        accessToken
-      }
-    }
-  `;
-
   const signIn = async () => {
     try {
-      const req = await request({
-        url: "http://192.168.0.244:4000/graphql",
-        document: signInQuery,
-        variables: {
-          email,
-          password,
+      await SignIn({
+        variables: { email, password },
+        onCompleted(result) {
+          saveSession("secure_token", result.signIn.accessToken);
+          navigation.navigate("Routes");
         },
       });
-
-      if (req.signIn.accessToken) {
-        await SecureStore.setItemAsync("secure_token", req.signIn.accessToken);
-        getUserProfile();
-        navigation.navigate("Routes");
-      }
     } catch (err) {
-      console.log(err);
       Alert.alert("Error", "Wrong credentials", [
         {
           text: "Ok",
@@ -76,64 +69,49 @@ const LoginScreen = ({ navigation }: any) => {
     }
   };
 
-  return token !== "null" ? (
-    <>
-      <View style={styles.homeContainer}>
-        <Text>News</Text>
-      </View>
-      <View style={styles.homeBtnContainer}>
-        <TouchableOpacity
-          style={styles.homeButton}
-          onPress={async () => {
-            await SecureStore.deleteItemAsync("secure_token");
-            navigation.navigate("Login");
-          }}
-        >
-          <Text style={styles.homeButtonText}>Log out</Text>
-        </TouchableOpacity>
-      </View>
-    </>
-  ) : (
-    <KeyboardAvoidingView style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image source={require("../assets/logo.png")} />
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          style={styles.input}
-          keyboardType="email-address"
-          textContentType="emailAddress"
-          autoCompleteType="email"
-        />
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          style={styles.input}
-          autoCompleteType="password"
-          secureTextEntry
-        />
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={async () => {
-            await signIn();
-          }}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.buttonOutline]}
-          onPress={() => navigation.navigate("Register")}
-        >
-          <Text style={styles.buttonOutlineText}>Register</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+  return (
+    !token && (
+      <KeyboardAvoidingView style={styles.container}>
+        <View style={styles.logoContainer}>
+          <Image source={require("../assets/logo.png")} />
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            style={styles.input}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            autoCompleteType="email"
+          />
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            style={styles.input}
+            autoCompleteType="password"
+            secureTextEntry
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              signIn();
+            }}
+          >
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.buttonOutline]}
+            onPress={() => navigation.navigate("Register")}
+          >
+            <Text style={styles.buttonOutlineText}>Register</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    )
   );
 };
 

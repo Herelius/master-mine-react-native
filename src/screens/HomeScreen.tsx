@@ -1,8 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import * as SecureStore from "expo-secure-store";
+import { AppContext } from "../contexts/AppContext";
 
 const HomeScreen = ({ navigation }) => {
+  const { setToken } = useContext<any>(AppContext);
+
   return (
     <>
       <View style={styles.homeContainer}>
@@ -13,6 +16,7 @@ const HomeScreen = ({ navigation }) => {
           style={styles.homeButton}
           onPress={async () => {
             await SecureStore.deleteItemAsync("secure_token");
+            setToken(null);
             navigation.navigate("Login");
           }}
         >

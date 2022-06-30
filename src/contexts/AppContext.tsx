@@ -2,29 +2,27 @@ import { createContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { gql, useQuery } from "@apollo/client";
 
+const PROFILE_DATA = gql`
+  query GetProfile {
+    getProfile {
+      id
+      username
+      email
+    }
+  }
+`;
+
 export const AppContext: any = createContext({});
 
 const AppProvider = ({ children }: { children: any }) => {
-  const test = "aaaaaa";
+  const [token, setToken] = useState<any | null>(null);
   const [user, setUser] = useState(null);
   const [headers, setHeaders] = useState(null);
 
-  const getUserProfile = async () => {
-    const token = await SecureStore.getItemAsync("secure_token");
-
-    if (token) {
-      console.log(token);
-    } else {
-      setUser(null);
-    }
-  };
-
-  useEffect(() => {
-    // getUserProfile();
-  }, []);
+  useEffect(() => {}, []);
 
   return (
-    <AppContext.Provider value={{ test, getUserProfile }}>
+    <AppContext.Provider value={{ token, setToken, user, setUser }}>
       {children}
     </AppContext.Provider>
   );
