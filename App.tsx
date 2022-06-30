@@ -1,21 +1,20 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Provider as PaperProvider } from "react-native-paper";
 import {
   ApolloClient,
   InMemoryCache,
-  ApolloProvider,
-  useQuery,
-  gql,
   createHttpLink,
+  ApolloProvider,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import * as SecureStore from "expo-secure-store";
 import { API_URL } from "@env";
-
-import Routes from "./routes/Routes";
-import LoginScreen from "./screens/LoginScreen";
-import RegisterScreen from "./screens/RegisterScreen";
+import RegisterScreen from "./src/screens/RegisterScreen";
+import Routes from "./src/routes/Routes";
+import AppProvider from "./src/contexts/AppContext";
+import LoginScreen from "./src/screens/LoginScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,9 +23,7 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  // get the authentication token from local storage if it exists
   const token = await SecureStore.getItemAsync("secure_token");
-  // return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
@@ -43,21 +40,25 @@ const client = new ApolloClient({
 export default function App() {
   return (
     <ApolloProvider client={client}>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen
-            options={{ headerShown: false }}
-            name="Login"
-            component={LoginScreen}
-          />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen
-            options={{ headerShown: false }}
-            name="Routes"
-            component={Routes}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <AppProvider>
+        <PaperProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Login">
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="Login"
+                component={LoginScreen}
+              />
+              <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="Routes"
+                component={Routes}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </AppProvider>
     </ApolloProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -6,10 +6,31 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import HomeScreen from "../screens/HomeScreen";
 import ProjectsScreen from "../screens/ProjectsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import { gql, useQuery } from "@apollo/client";
+import { AppContext } from "../contexts/AppContext";
 
 const Tab = createBottomTabNavigator();
 
+const PROFILE_DATA = gql`
+  query GetProfile {
+    getProfile {
+      id
+      username
+      email
+    }
+  }
+`;
+
 const Routes = (): JSX.Element => {
+  const { setUser } = useContext<any>(AppContext);
+  const { data, loading, error } = useQuery(PROFILE_DATA);
+
+  useEffect(() => {
+    if (data) {
+      setUser(data.getProfile);
+    }
+  }, [data]);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import {
   StyleSheet,
@@ -11,7 +11,8 @@ import {
   Alert,
 } from "react-native";
 
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { AppContext } from "../contexts/AppContext";
 
 const SIGN_IN = gql`
   mutation SignIn($password: String!, $email: String!) {
@@ -22,9 +23,9 @@ const SIGN_IN = gql`
 `;
 
 const LoginScreen = ({ navigation }: any) => {
+  const { token, setToken } = useContext<any>(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
 
   const [SignIn, { data, loading, error }] = useMutation(SIGN_IN);
 
@@ -34,14 +35,15 @@ const LoginScreen = ({ navigation }: any) => {
 
   const getToken = async (key: string) => {
     let result = await SecureStore.getItemAsync(key);
-    if (result) setToken(result);
-    else setToken("null");
+    if (result) {
+      setToken(result);
+    } else setToken(null);
   };
 
   useEffect(() => {
     try {
       getToken("secure_token");
-      if (token !== "null") {
+      if (!token) {
         navigation.navigate("Routes");
       }
     } catch (err) {
@@ -53,8 +55,8 @@ const LoginScreen = ({ navigation }: any) => {
     try {
       await SignIn({
         variables: { email, password },
-        onCompleted(data) {
-          saveSession("secure_token", data.signIn.accessToken);
+        onCompleted(result) {
+          saveSession("secure_token", result.signIn.accessToken);
           navigation.navigate("Routes");
         },
       });
@@ -68,7 +70,7 @@ const LoginScreen = ({ navigation }: any) => {
   };
 
   return (
-    token === "null" && (
+    !token && (
       <KeyboardAvoidingView style={styles.container}>
         <View style={styles.logoContainer}>
           <Image source={require("../assets/logo.png")} />
