@@ -4,7 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import { AppContext } from "../contexts/AppContext";
 
 const HomeScreen = ({ navigation }) => {
-  const { setToken } = useContext<any>(AppContext);
+  const { setIsAuth } = useContext<any>(AppContext);
 
   return (
     <>
@@ -16,7 +16,7 @@ const HomeScreen = ({ navigation }) => {
           style={styles.homeButton}
           onPress={async () => {
             await SecureStore.deleteItemAsync("secure_token");
-            setToken(null);
+            setIsAuth(false);
             navigation.navigate("Login");
           }}
         >

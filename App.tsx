@@ -19,7 +19,7 @@ import LoginScreen from "./src/screens/LoginScreen";
 const Stack = createNativeStackNavigator();
 
 const httpLink = createHttpLink({
-  uri: API_URL,
+  uri: API_URL as string,
 });
 
 const authLink = setContext(async (_, { headers }) => {
@@ -39,8 +39,8 @@ const client = new ApolloClient({
 
 export default function App() {
   return (
-    <ApolloProvider client={client}>
-      <AppProvider>
+    <AppProvider>
+      <ApolloProvider client={client}>
         <PaperProvider>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Login">
@@ -58,7 +58,7 @@ export default function App() {
             </Stack.Navigator>
           </NavigationContainer>
         </PaperProvider>
-      </AppProvider>
-    </ApolloProvider>
+      </ApolloProvider>
+    </AppProvider>
   );
 }

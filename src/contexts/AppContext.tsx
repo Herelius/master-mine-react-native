@@ -15,14 +15,22 @@ const PROFILE_DATA = gql`
 export const AppContext: any = createContext({});
 
 const AppProvider = ({ children }: { children: any }) => {
-  const [token, setToken] = useState<any | null>(null);
+  const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState(null);
-  const [headers, setHeaders] = useState(null);
 
-  useEffect(() => {}, []);
+  const getToken = async () => {
+    const result = await SecureStore.getItemAsync("secure_token");
+    if (result) {
+      setIsAuth(true);
+    }
+  };
+
+  useEffect(() => {
+    getToken();
+  }, []);
 
   return (
-    <AppContext.Provider value={{ token, setToken, user, setUser }}>
+    <AppContext.Provider value={{ isAuth, setIsAuth, user, setUser }}>
       {children}
     </AppContext.Provider>
   );

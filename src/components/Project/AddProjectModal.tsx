@@ -1,7 +1,17 @@
 import { View, Text, Button } from "react-native";
-import * as React from "react";
-import { Dialog, Paragraph, Portal } from "react-native-paper";
-import { request, gql } from "graphql-request";
+import React, { useContext, useEffect, useState } from "react";
+import { Dialog, Paragraph, Portal, TextInput } from "react-native-paper";
+import { gql, useMutation } from "@apollo/client";
+import { AppContext } from "../../contexts/AppContext";
+
+const ADD_PROJECT = gql`
+  mutation AddProject($idUser: ID!, $data: ProjectInput!) {
+    addProject(idUser: $idUser, data: $data) {
+      id
+      title
+    }
+  }
+`;
 
 const AddProjectModal = ({
   hideDialog,
@@ -10,22 +20,23 @@ const AddProjectModal = ({
   hideDialog: any;
   visible: boolean;
 }) => {
-  const addProjectQuery = gql`
-    addProject(idUser: $idUser, data: $data) {
-      id
-      title
-    }
-  `;
+  const { user } = useContext<any>(AppContext);
+  const [AddProject, { data, loading, error }] = useMutation(ADD_PROJECT);
+  const [title, setTitle] = useState("");
 
-  const handlerAddBtn = async () => {
+  useEffect(() => {
+    console.log(user);
+  }, []);
+
+  const handleAddBtn = async () => {
+    const userId = user.id;
     try {
-      const response = await request({
-        url: "http://192.168.0.244:4000/graphql",
-        document: addProjectQuery,
-        // variables: {
-        //   idUser,
-        //   data,
-        // },
+      await AddProject({
+        variables: { userId, title },
+        onCompleted(result) {
+          console.log(result);
+          hideDialog();
+        },
       });
     } catch (err) {
       console.log(err);
@@ -37,12 +48,18 @@ const AddProjectModal = ({
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Title>Alert</Dialog.Title>
+        <Dialog.Title>Créer un projet</Dialog.Title>
         <Dialog.Content>
-          <Paragraph>This is simple dialog</Paragraph>
+          <TextInput
+            label="Titre"
+            autoComplete={false}
+            mode="outlined"
+            value={title}
+            onChangeText={(text) => setTitle(text)}
+          />
         </Dialog.Content>
         <Dialog.Actions>
-          <Button onPress={handlerAddBtn} title="Créer" />
+          <Button onPress={handleAddBtn} title="Valider" />
         </Dialog.Actions>
       </Dialog>
     </Portal>

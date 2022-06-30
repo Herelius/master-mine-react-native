@@ -91,41 +91,8 @@ const ProjectsPage = (): JSX.Element => {
         </View>
 
         <AddProjectModal hideDialog={hideDialog} visible={visible} />
-
-        {/* <Portal>
-          <Dialog visible={visible} onDismiss={hideDialog}>
-            <Dialog.Title>Alert</Dialog.Title>
-            <Dialog.Content>
-              <Paragraph>This is simple dialog</Paragraph>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button onPress={hideDialog} title="Done" />
-            </Dialog.Actions>
-          </Dialog>
-        </Portal> */}
       </View>
     </Provider>
-
-    // <Provider>
-    //   <View style={styles.container}>
-
-    //     <FlatList
-    //       data={data}
-    //       renderItem={renderItem}
-    //       keyExtractor={(item, index) => `${item}-${index}`}
-    //     />
-    //   </View>
-
-    //   <Portal>
-    //     <Modal
-    //       visible={visible}
-    //       onDismiss={hideModal}
-    //       style={styles.containerStyle}
-    //     >
-    //       <Text>Example Modal. Click outside this area to dismiss.</Text>
-    //     </Modal>
-    //   </Portal>
-    // </Provider>
   );
 };
 
