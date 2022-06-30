@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Avatar, Button } from "react-native-paper";
+import * as SecureStore from "expo-secure-store";
 
 import { AppContext } from "../contexts/AppContext";
 
-const ProfileScreen = (): JSX.Element => {
+const ProfileScreen = ({ navigation }: any): JSX.Element => {
+  const { setToken } = useContext<any>(AppContext);
   const { user } = useContext<any>(AppContext);
-  console.log(user);
 
   return (
     <View style={styles.container}>
@@ -23,9 +24,25 @@ const ProfileScreen = (): JSX.Element => {
             Change avatar
           </Button>
         </View>
-        <View>
+        <View style={styles.userInfoContainer}>
           <Text style={styles.userInfo}>Username : {user.username}</Text>
           <Text style={styles.userInfo}>E-mail : {user.email}</Text>
+        </View>
+        <View style={styles.logOutBtnContainer}>
+          <Button
+            icon="logout"
+            mode="contained"
+            style={{
+              backgroundColor: "#fc0a54",
+            }}
+            onPress={async () => {
+              await SecureStore.deleteItemAsync("secure_token");
+              await setToken(null);
+              navigation.navigate("Login");
+            }}
+          >
+            Log out
+          </Button>
         </View>
       </View>
     </View>
@@ -44,10 +61,25 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: "center",
     alignItems: "center",
+    fontSize: 25,
+  },
+  userInfoContainer: {
+    marginTop: 30,
+    marginHorizontal: 10,
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: "#198CE4",
   },
   userInfo: {
-    paddingLeft: 10,
-    fontSize: 16,
+    padding: 5,
+    fontSize: 25,
+    color: "white",
+  },
+  logOutBtnContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 25,
+    paddingTop: 35,
   },
 });
 

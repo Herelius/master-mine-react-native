@@ -38,7 +38,6 @@ const client = new ApolloClient({
 });
 
 export default function App() {
-  console.log(API_URL);
   return (
     <ApolloProvider client={client}>
       <AppProvider>
