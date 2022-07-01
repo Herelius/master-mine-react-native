@@ -15,11 +15,12 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import Routes from "./src/routes/Routes";
 import AppProvider from "./src/contexts/AppContext";
 import LoginScreen from "./src/screens/LoginScreen";
+import ProjectPage from "./src/screens/ProjectDetailsScreen";
 
 const Stack = createNativeStackNavigator();
 
 const httpLink = createHttpLink({
-  uri: API_URL as string,
+  uri: "http://192.168.0.244:4000/graphql",
 });
 
 const authLink = setContext(async (_, { headers }) => {
@@ -50,6 +51,7 @@ export default function App() {
                 component={LoginScreen}
               />
               <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen name="Project" component={ProjectPage} />
               <Stack.Screen
                 options={{ headerShown: false }}
                 name="Routes"

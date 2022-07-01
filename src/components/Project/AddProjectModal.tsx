@@ -20,21 +20,17 @@ const AddProjectModal = ({
   hideDialog: any;
   visible: boolean;
 }) => {
-  const { user } = useContext<any>(AppContext);
-  const [AddProject, { data, loading, error }] = useMutation(ADD_PROJECT);
+  const { user, setProjects } = useContext<any>(AppContext);
+  const [AddProject] = useMutation(ADD_PROJECT);
   const [title, setTitle] = useState("");
 
-  useEffect(() => {
-    console.log(user);
-  }, []);
-
   const handleAddBtn = async () => {
-    const userId = user.id;
+    const idUser = user.id;
     try {
       await AddProject({
-        variables: { userId, title },
+        variables: { idUser, data: { title } },
         onCompleted(result) {
-          console.log(result);
+          setProjects(result.addProject);
           hideDialog();
         },
       });

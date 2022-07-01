@@ -14,9 +14,19 @@ const PROFILE_DATA = gql`
 
 export const AppContext: any = createContext({});
 
+export interface Project {
+  id?: string;
+  title?: string;
+  users?: { id: ""; username: "" }[];
+  managers?: { id: ""; username: "" }[];
+  dev?: { id: ""; username: "" }[];
+  tasks?: { id: ""; title: "" }[];
+}
+
 const AppProvider = ({ children }: { children: any }) => {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState(null);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   const getToken = async () => {
     const result = await SecureStore.getItemAsync("secure_token");
@@ -30,7 +40,9 @@ const AppProvider = ({ children }: { children: any }) => {
   }, []);
 
   return (
-    <AppContext.Provider value={{ isAuth, setIsAuth, user, setUser }}>
+    <AppContext.Provider
+      value={{ isAuth, setIsAuth, user, setUser, projects, setProjects }}
+    >
       {children}
     </AppContext.Provider>
   );

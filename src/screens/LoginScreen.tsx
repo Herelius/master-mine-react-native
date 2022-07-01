@@ -27,7 +27,7 @@ const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [SignIn, { data, loading, error }] = useMutation(SIGN_IN);
+  const [SignIn] = useMutation(SIGN_IN);
 
   const saveSession = async (key: string, value: string) => {
     await SecureStore.setItemAsync(key, value);

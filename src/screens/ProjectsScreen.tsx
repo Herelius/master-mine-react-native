@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   Button,
   Modal,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import Card from "../components/Card";
 import {
@@ -17,6 +18,9 @@ import {
   Provider,
 } from "react-native-paper";
 import AddProjectModal from "../components/Project/AddProjectModal";
+import { AppContext, Project } from "../contexts/AppContext";
+import { gql, useQuery } from "@apollo/client";
+import ProjectCard from "../components/Project/ProjectCard";
 
 const data = [
   {
@@ -51,8 +55,41 @@ const data = [
   },
 ];
 
+const PROJECTS_DATA = gql`
+  query GetProjects {
+    getProjects {
+      id
+      title
+      tasks {
+        title
+        id
+      }
+      users {
+        id
+        username
+      }
+      dev {
+        id
+        username
+      }
+      managers {
+        id
+        username
+      }
+    }
+  }
+`;
+
 const ProjectsPage = (): JSX.Element => {
   const [visible, setVisible] = React.useState(false);
+  const { user, projects, setProjects } = useContext<any>(AppContext);
+  const { data, loading, error } = useQuery(PROJECTS_DATA);
+
+  useEffect(() => {
+    if (data) {
+      setProjects(data.getProjects);
+    }
+  }, [data]);
 
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
@@ -90,6 +127,18 @@ const ProjectsPage = (): JSX.Element => {
           </TouchableOpacity>
         </View>
 
+        {!loading && projects.length > 0 ? (
+          <ScrollView style={styles.projectContainer}>
+            {projects.map((project: Project) => {
+              return <ProjectCard project={project} key={project.id} />;
+            })}
+          </ScrollView>
+        ) : projects.length > 0 ? (
+          <Text>Aucun project en cours</Text>
+        ) : (
+          <Text>Chargement en cours...</Text>
+        )}
+
         <AddProjectModal hideDialog={hideDialog} visible={visible} />
       </View>
     </Provider>
@@ -105,6 +154,9 @@ const styles = StyleSheet.create({
   containerStyle: {
     backgroundColor: "white",
     padding: 20,
+  },
+  projectContainer: {
+    padding: 10,
   },
 });
 
