@@ -16,9 +16,11 @@ const ADD_PROJECT = gql`
 const AddProjectModal = ({
   hideDialog,
   visible,
+  refetch,
 }: {
   hideDialog: any;
   visible: boolean;
+  refetch: Function;
 }) => {
   const { user, setProjects } = useContext<any>(AppContext);
   const [AddProject] = useMutation(ADD_PROJECT);
@@ -30,7 +32,8 @@ const AddProjectModal = ({
       await AddProject({
         variables: { idUser, data: { title } },
         onCompleted(result) {
-          setProjects(result.addProject);
+          refetch();
+          setTitle("");
           hideDialog();
         },
       });

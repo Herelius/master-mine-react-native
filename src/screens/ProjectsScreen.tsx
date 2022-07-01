@@ -83,7 +83,7 @@ const PROJECTS_DATA = gql`
 const ProjectsPage = (): JSX.Element => {
   const [visible, setVisible] = React.useState(false);
   const { user, projects, setProjects } = useContext<any>(AppContext);
-  const { data, loading, error } = useQuery(PROJECTS_DATA);
+  const { data, loading, error, refetch } = useQuery(PROJECTS_DATA);
 
   useEffect(() => {
     if (data) {
@@ -93,10 +93,6 @@ const ProjectsPage = (): JSX.Element => {
 
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
-
-  const renderItem = ({ item }: { item: any }) => (
-    <Card projectTitle={item.projectTitle} progress={item.progress} />
-  );
 
   return (
     <Provider>
@@ -139,7 +135,11 @@ const ProjectsPage = (): JSX.Element => {
           <Text>Chargement en cours...</Text>
         )}
 
-        <AddProjectModal hideDialog={hideDialog} visible={visible} />
+        <AddProjectModal
+          hideDialog={hideDialog}
+          refetch={refetch}
+          visible={visible}
+        />
       </View>
     </Provider>
   );

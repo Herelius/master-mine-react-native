@@ -20,7 +20,7 @@ import ProjectPage from "./src/screens/ProjectDetailsScreen";
 const Stack = createNativeStackNavigator();
 
 const httpLink = createHttpLink({
-  uri: "http://192.168.0.244:4000/graphql",
+  uri: API_URL as string,
 });
 
 const authLink = setContext(async (_, { headers }) => {
