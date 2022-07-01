@@ -6,8 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import { AppContext } from "../contexts/AppContext";
 
 const ProfileScreen = ({ navigation }: any): JSX.Element => {
-  const { setToken } = useContext<any>(AppContext);
-  const { user } = useContext<any>(AppContext);
+  const { user, isAuth } = useContext<any>(AppContext);
 
   return (
     <View style={styles.container}>
@@ -25,8 +24,12 @@ const ProfileScreen = ({ navigation }: any): JSX.Element => {
           </Button>
         </View>
         <View style={styles.userInfoContainer}>
-          <Text style={styles.userInfo}>Username : {user.username}</Text>
-          <Text style={styles.userInfo}>E-mail : {user.email}</Text>
+          <Text style={styles.userInfo}>
+            Username : {user ? user.username : null}
+          </Text>
+          <Text style={styles.userInfo}>
+            E-mail : {user ? user.email : null}
+          </Text>
         </View>
         <View style={styles.logOutBtnContainer}>
           <Button
@@ -37,7 +40,8 @@ const ProfileScreen = ({ navigation }: any): JSX.Element => {
             }}
             onPress={async () => {
               await SecureStore.deleteItemAsync("secure_token");
-              await setToken(null);
+              isAuth(false);
+
               navigation.navigate("Login");
             }}
           >

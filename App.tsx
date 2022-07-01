@@ -15,6 +15,7 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import Routes from "./src/routes/Routes";
 import AppProvider from "./src/contexts/AppContext";
 import LoginScreen from "./src/screens/LoginScreen";
+import ProjectPage from "./src/screens/ProjectDetailsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -39,8 +40,8 @@ const client = new ApolloClient({
 
 export default function App() {
   return (
-    <ApolloProvider client={client}>
-      <AppProvider>
+    <AppProvider>
+      <ApolloProvider client={client}>
         <PaperProvider>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Login">
@@ -50,6 +51,7 @@ export default function App() {
                 component={LoginScreen}
               />
               <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen name="Project" component={ProjectPage} />
               <Stack.Screen
                 options={{ headerShown: false }}
                 name="Routes"
@@ -58,7 +60,7 @@ export default function App() {
             </Stack.Navigator>
           </NavigationContainer>
         </PaperProvider>
-      </AppProvider>
-    </ApolloProvider>
+      </ApolloProvider>
+    </AppProvider>
   );
 }

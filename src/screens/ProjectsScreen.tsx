@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   Button,
   Modal,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import Card from "../components/Card";
 import {
@@ -17,6 +18,9 @@ import {
   Provider,
 } from "react-native-paper";
 import AddProjectModal from "../components/Project/AddProjectModal";
+import { AppContext, Project } from "../contexts/AppContext";
+import { gql, useQuery } from "@apollo/client";
+import ProjectCard from "../components/Project/ProjectCard";
 
 const data = [
   {
@@ -51,15 +55,44 @@ const data = [
   },
 ];
 
+const PROJECTS_DATA = gql`
+  query GetProjects {
+    getProjects {
+      id
+      title
+      tasks {
+        title
+        id
+      }
+      users {
+        id
+        username
+      }
+      dev {
+        id
+        username
+      }
+      managers {
+        id
+        username
+      }
+    }
+  }
+`;
+
 const ProjectsPage = (): JSX.Element => {
   const [visible, setVisible] = React.useState(false);
+  const { user, projects, setProjects } = useContext<any>(AppContext);
+  const { data, loading, error, refetch } = useQuery(PROJECTS_DATA);
+
+  useEffect(() => {
+    if (data) {
+      setProjects(data.getProjects);
+    }
+  }, [data]);
 
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
-
-  const renderItem = ({ item }: { item: any }) => (
-    <Card projectTitle={item.projectTitle} progress={item.progress} />
-  );
 
   return (
     <Provider>
@@ -90,42 +123,25 @@ const ProjectsPage = (): JSX.Element => {
           </TouchableOpacity>
         </View>
 
-        <AddProjectModal hideDialog={hideDialog} visible={visible} />
+        {!loading && projects.length > 0 ? (
+          <ScrollView style={styles.projectContainer}>
+            {projects.map((project: Project) => {
+              return <ProjectCard project={project} key={project.id} />;
+            })}
+          </ScrollView>
+        ) : projects.length > 0 ? (
+          <Text>Aucun project en cours</Text>
+        ) : (
+          <Text>Chargement en cours...</Text>
+        )}
 
-        {/* <Portal>
-          <Dialog visible={visible} onDismiss={hideDialog}>
-            <Dialog.Title>Alert</Dialog.Title>
-            <Dialog.Content>
-              <Paragraph>This is simple dialog</Paragraph>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button onPress={hideDialog} title="Done" />
-            </Dialog.Actions>
-          </Dialog>
-        </Portal> */}
+        <AddProjectModal
+          hideDialog={hideDialog}
+          refetch={refetch}
+          visible={visible}
+        />
       </View>
     </Provider>
-
-    // <Provider>
-    //   <View style={styles.container}>
-
-    //     <FlatList
-    //       data={data}
-    //       renderItem={renderItem}
-    //       keyExtractor={(item, index) => `${item}-${index}`}
-    //     />
-    //   </View>
-
-    //   <Portal>
-    //     <Modal
-    //       visible={visible}
-    //       onDismiss={hideModal}
-    //       style={styles.containerStyle}
-    //     >
-    //       <Text>Example Modal. Click outside this area to dismiss.</Text>
-    //     </Modal>
-    //   </Portal>
-    // </Provider>
   );
 };
 
@@ -138,6 +154,9 @@ const styles = StyleSheet.create({
   containerStyle: {
     backgroundColor: "white",
     padding: 20,
+  },
+  projectContainer: {
+    padding: 10,
   },
 });
 

@@ -23,33 +23,21 @@ const SIGN_IN = gql`
 `;
 
 const LoginScreen = ({ navigation }: any) => {
-  const { token, setToken } = useContext<any>(AppContext);
+  const { isAuth, setIsAuth } = useContext<any>(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [SignIn, { data, loading, error }] = useMutation(SIGN_IN);
+  const [SignIn] = useMutation(SIGN_IN);
 
   const saveSession = async (key: string, value: string) => {
     await SecureStore.setItemAsync(key, value);
   };
 
-  const getToken = async (key: string) => {
-    let result = await SecureStore.getItemAsync(key);
-    if (result) {
-      setToken(result);
-    } else setToken(null);
-  };
-
   useEffect(() => {
-    try {
-      getToken("secure_token");
-      if (!token) {
-        navigation.navigate("Routes");
-      }
-    } catch (err) {
-      console.log("No Token");
+    if (isAuth) {
+      navigation.navigate("Routes");
     }
-  }, []);
+  }, [isAuth]);
 
   const signIn = async () => {
     try {
@@ -57,6 +45,7 @@ const LoginScreen = ({ navigation }: any) => {
         variables: { email, password },
         onCompleted(result) {
           saveSession("secure_token", result.signIn.accessToken);
+          setIsAuth(true);
           navigation.navigate("Routes");
         },
       });
@@ -70,7 +59,7 @@ const LoginScreen = ({ navigation }: any) => {
   };
 
   return (
-    !token && (
+    !isAuth && (
       <KeyboardAvoidingView style={styles.container}>
         <View style={styles.logoContainer}>
           <Image source={require("../assets/logo.png")} />
