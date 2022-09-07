@@ -3,7 +3,7 @@ import React from "react";
 import { Project } from "../../contexts/AppContext";
 import { useNavigation } from "@react-navigation/native";
 
-const ProjectCard = ({ project }: { project: Project }) => {
+export const ProjectCard = ({ project }: { project: Project }) => {
   const navigation: any = useNavigation();
 
   return (
@@ -15,8 +15,6 @@ const ProjectCard = ({ project }: { project: Project }) => {
     </TouchableOpacity>
   );
 };
-
-export default ProjectCard;
 
 const styles = StyleSheet.create({
   card: {
